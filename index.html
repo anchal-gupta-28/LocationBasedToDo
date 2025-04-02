@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location-Based To-Do</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background 0.5s ease-in-out;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        select {
+            background: #333;
+            color: white;
+        }
+        button {
+            background: green;
+            color: white;
+            cursor: pointer;
+        }
+        #tasks, #city-info {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .task {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Location-Based To-Do</h1>
+        <label for="city">Select Your City:</label>
+        <select id="city" onchange="showSuggestions()">
+            <option value="">--Select--</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Kolkata">Kolkata</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Pune">Pune</option>
+            <option value="Jaipur">Jaipur</option>
+            <option value="Ahmedabad">Ahmedabad</option>
+            <option value="Goa">Goa</option>
+            <option value="Varanasi">Varanasi</option>
+            <option value="Amritsar">Amritsar</option>
+            <option value="Udaipur">Udaipur</option>
+            <option value="Shimla">Shimla</option>
+        </select>
+        <div id="city-info"></div>
+        <h2>Your To-Do List</h2>
+        <ul id="tasks"></ul>
+    </div>
+
+    <script>
+        const cityBackgrounds = {
+            "Delhi": "url('https://source.unsplash.com/800x600/?india-gate')",
+            "Mumbai": "url('https://source.unsplash.com/800x600/?gateway-of-india')",
+            "Bangalore": "url('https://source.unsplash.com/800x600/?bangalore')",
+            "Chennai": "url('https://source.unsplash.com/800x600/?marina-beach')",
+            "Kolkata": "url('https://source.unsplash.com/800x600/?howrah-bridge')",
+            "Hyderabad": "url('https://source.unsplash.com/800x600/?charminar')",
+            "Pune": "url('https://source.unsplash.com/800x600/?pune')",
+            "Jaipur": "url('https://source.unsplash.com/800x600/?hawa-mahal')",
+            "Ahmedabad": "url('https://source.unsplash.com/800x600/?sabarmati-ashram')",
+            "Goa": "url('https://source.unsplash.com/800x600/?goa-beach')",
+            "Varanasi": "url('https://source.unsplash.com/800x600/?varanasi-ghat')",
+            "Amritsar": "url('https://source.unsplash.com/800x600/?golden-temple')",
+            "Udaipur": "url('https://source.unsplash.com/800x600/?udaipur')",
+            "Shimla": "url('https://source.unsplash.com/800x600/?shimla')",
+        };
+
+        const citySuggestions = {
+            "Delhi": ["Visit India Gate", "Eat Chole Bhature", "Explore Red Fort", "Shop at Chandni Chowk", "Visit Lotus Temple"],
+            "Mumbai": ["Visit Marine Drive", "Try Vada Pav", "Explore Gateway of India", "Visit Film City", "Relax at Juhu Beach"],
+            "Bangalore": ["Visit Lalbagh Garden", "Eat Masala Dosa", "Explore Cubbon Park", "Visit Bangalore Palace", "Go to Bannerghatta National Park"],
+            "Chennai": ["Visit Marina Beach", "Try Idli Sambar", "Explore Kapaleeshwarar Temple", "Visit Fort St. George", "Shop at T Nagar"],
+            "Kolkata": ["Visit Victoria Memorial", "Eat Rosogolla", "Explore Howrah Bridge", "See Science City", "Visit Dakshineswar Temple"],
+            "Hyderabad": ["Visit Charminar", "Eat Hyderabadi Biryani", "Explore Golconda Fort", "Visit Ramoji Film City", "See Hussain Sagar Lake"],
+            "Pune": ["Visit Shaniwar Wada", "Try Misal Pav", "Explore Sinhagad Fort", "Visit Aga Khan Palace", "See Osho Ashram"],
+            "Jaipur": ["Visit Hawa Mahal", "Eat Dal Baati Churma", "Explore Amer Fort", "See Nahargarh Fort", "Shop at Johari Bazaar"],
+            "Ahmedabad": ["Visit Sabarmati Ashram", "Try Dhokla", "Explore Kankaria Lake", "See Adalaj Stepwell", "Visit Akshardham Temple"],
+            "Goa": ["Visit Baga Beach", "Try Goan Fish Curry", "Explore Fort Aguada", "Party at Tito’s Club", "Relax at Palolem Beach"],
+            "Varanasi": ["Visit Kashi Vishwanath Temple", "Try Banarasi Paan", "Explore Ghats of Varanasi", "See Sarnath", "Attend Ganga Aarti"],
+            "Amritsar": ["Visit Golden Temple", "Try Amritsari Kulcha", "Explore Jallianwala Bagh", "See Wagah Border Ceremony", "Visit Durgiana Temple"],
+            "Udaipur": ["Visit City Palace", "Try Rajasthani Thali", "Explore Lake Pichola", "See Jag Mandir", "Visit Sajjangarh Palace"],
+            "Shimla": ["Visit Mall Road", "Try Chana Madra", "Explore Kufri", "See Jakhoo Temple", "Ride the Toy Train"],
+        };
+
+        function showSuggestions() {
+            const city = document.getElementById("city").value;
+            document.body.style.backgroundImage = cityBackgrounds[city] || "";
+            const cityInfo = document.getElementById("city-info");
+            cityInfo.innerHTML = citySuggestions[city]?.map(task => `<div class='task'>${task} <button onclick="addTask('${task}')">Add</button></div>`).join('') || "";
+        }
+
+        function addTask(task) {
+            document.getElementById("tasks").innerHTML += `<li>${task} <button onclick="this.parentElement.remove()">Done</button></li>`;
+        }
+    </script>
+</body>
+</html>
