@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,45 +17,92 @@
             transition: background 0.5s ease-in-out;
             color: white;
         }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
         .container {
             max-width: 600px;
             margin: auto;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
         }
-        select, button {
+
+        select,
+        button {
             padding: 10px;
             font-size: 16px;
             margin: 10px;
             border-radius: 5px;
             border: none;
         }
+
         select {
-            background: #333;
+            background: #444;
             color: white;
         }
+
         button {
             background: green;
             color: white;
             cursor: pointer;
+            transition: background 0.3s;
         }
-        #tasks, #city-info {
+
+        button:hover {
+            background: darkgreen;
+        }
+
+        #tasks,
+        #city-info {
             margin-top: 20px;
             text-align: left;
         }
-        .task {
+
+        #city-info div {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            align-items: center;
             background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin-top: 5px;
             border-radius: 5px;
+        }
+
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+        .disabled {
+            background: gray !important;
+            cursor: not-allowed;
         }
     </style>
 </head>
+
 <body>
+    <div class="overlay"></div>
     <div class="container">
         <h1>Location-Based To-Do</h1>
         <label for="city">Select Your City:</label>
@@ -81,50 +129,121 @@
     </div>
 
     <script>
-        const cityBackgrounds = {
-            "Delhi": "url('https://source.unsplash.com/800x600/?india-gate')",
-            "Mumbai": "url('https://source.unsplash.com/800x600/?gateway-of-india')",
-            "Bangalore": "url('https://source.unsplash.com/800x600/?bangalore')",
-            "Chennai": "url('https://source.unsplash.com/800x600/?marina-beach')",
-            "Kolkata": "url('https://source.unsplash.com/800x600/?howrah-bridge')",
-            "Hyderabad": "url('https://source.unsplash.com/800x600/?charminar')",
-            "Pune": "url('https://source.unsplash.com/800x600/?pune')",
-            "Jaipur": "url('https://source.unsplash.com/800x600/?hawa-mahal')",
-            "Ahmedabad": "url('https://source.unsplash.com/800x600/?sabarmati-ashram')",
-            "Goa": "url('https://source.unsplash.com/800x600/?goa-beach')",
-            "Varanasi": "url('https://source.unsplash.com/800x600/?varanasi-ghat')",
-            "Amritsar": "url('https://source.unsplash.com/800x600/?golden-temple')",
-            "Udaipur": "url('https://source.unsplash.com/800x600/?udaipur')",
-            "Shimla": "url('https://source.unsplash.com/800x600/?shimla')",
+        const cityTasks = {
+            "Delhi": [
+                "Visit India Gate", "Explore Red Fort", "Try Paranthas at Chandni Chowk",
+                "Visit Lotus Temple", "Shop at Connaught Place", "Explore Qutub Minar",
+                "Take a rickshaw ride in Old Delhi", "Visit Humayun's Tomb",
+                "Watch a light show at Akshardham Temple", "Explore Hauz Khas Village"
+            ],
+            "Mumbai": [
+                "Walk on Marine Drive", "Visit Gateway of India", "Try Mumbai's Vada Pav",
+                "Explore Elephanta Caves", "Relax at Juhu Beach", "Shop at Colaba Causeway",
+                "Visit Siddhivinayak Temple", "Take a ferry to Alibaug",
+                "Watch a play at Prithvi Theatre", "Explore Dharavi Slum Tour"
+            ],
+            "Bangalore": [
+                "Visit Lalbagh Botanical Garden", "Explore Cubbon Park", "Try Filter Coffee",
+                "Visit Bangalore Palace", "Walk around MG Road", "Enjoy nightlife at Indiranagar",
+                "Explore Bannerghatta National Park", "Check out Wonderla Amusement Park",
+                "Eat at VV Puram Food Street", "Visit ISKCON Temple"
+            ],
+            "Chennai": [
+                "Relax at Marina Beach", "Explore Fort St. George", "Try South Indian Dosa",
+                "Visit Kapaleeshwarar Temple", "Watch a movie at Sathyam Cinemas",
+                "Go shopping at T Nagar", "Enjoy sunset at Besant Nagar Beach",
+                "Visit Guindy National Park", "Explore Valluvar Kottam", "Take a trip to Mahabalipuram"
+            ],
+            "Kolkata": [
+                "See Howrah Bridge", "Explore Victoria Memorial", "Try Rosogolla",
+                "Visit Dakshineswar Kali Temple", "Walk around Park Street",
+                "Experience the tram ride", "Visit Indian Museum", "Eat Kathi Rolls",
+                "Watch a cricket match at Eden Gardens", "Explore College Street"
+            ],
+            "Hyderabad": [
+                "Visit Charminar", "Eat Hyderabadi Biryani", "Explore Golconda Fort",
+                "Walk around Hussain Sagar Lake", "Check out Ramoji Film City",
+                "Visit Salar Jung Museum", "Shop at Laad Bazaar", "Try Irani Chai",
+                "Explore Chowmahalla Palace", "Visit Nehru Zoological Park"
+            ],
+            "Pune": [
+                "Visit Shaniwar Wada", "Explore Aga Khan Palace", "Try Misal Pav",
+                "Trek to Sinhagad Fort", "Enjoy nightlife at Koregaon Park",
+                "Walk in Pune Okayama Friendship Garden", "Visit Parvati Hill",
+                "Explore Raja Dinkar Kelkar Museum", "Shop at FC Road", "Relax at Mulshi Dam"
+            ],
+            "Jaipur": [
+                "Explore Amer Fort", "Visit Hawa Mahal", "Try Dal Baati Churma",
+                "Shop at Johri Bazaar", "Visit City Palace", "Take an elephant ride at Nahargarh",
+                "See the Jantar Mantar", "Try Lassi at Lassiwala", "Watch a folk dance at Chokhi Dhani",
+                "Explore Jaigarh Fort"
+            ],
+            "Ahmedabad": [
+                "Visit Sabarmati Ashram", "Try Gujarati Thali", "Explore Adalaj Stepwell",
+                "Visit Kankaria Lake", "Check out Sidi Saiyyed Mosque", "Walk on Riverfront",
+                "Eat at Manek Chowk", "Explore Akshardham Temple", "Visit Science City",
+                "Enjoy street food at Law Garden"
+            ],
+            "Goa": [
+                "Relax at Baga Beach", "Try Goan Fish Curry", "Visit Dudhsagar Waterfalls",
+                "Explore Aguada Fort", "Go on a casino cruise", "Experience nightlife at Tito’s",
+                "Do water sports at Calangute Beach", "Visit Basilica of Bom Jesus",
+                "Enjoy a bike ride to Chapora Fort", "Shop at Anjuna Flea Market"
+            ],
+            "Varanasi": [
+                "Take a boat ride on Ganges", "Attend Ganga Aarti at Dashashwamedh Ghat",
+                "Explore Kashi Vishwanath Temple", "Try Banarasi Paan", "Visit Sarnath",
+                "Walk through the old city", "Enjoy Banarasi Silk Shopping",
+                "Experience sunrise at Assi Ghat", "Visit Ramnagar Fort", "Eat Malaiyyo"
+            ],
+            "Amritsar": [
+                "Visit Golden Temple", "Watch Wagah Border Ceremony", "Try Amritsari Kulcha",
+                "Explore Jallianwala Bagh", "Walk around Hall Bazaar", "Taste Lassi at Ahuja",
+                "Visit Durgiana Temple", "Explore Maharaja Ranjit Singh Museum",
+                "Enjoy street food at Kesar Da Dhaba", "Shop for Punjabi Juttis"
+            ],
+            "Udaipur": [
+                "Visit City Palace", "Explore Lake Pichola", "Try Dal Baati Churma",
+                "Check out Fateh Sagar Lake", "Experience the vintage car museum",
+                "Watch the sunset at Sajjangarh Fort", "Shop at Hathi Pol Bazaar",
+                "Enjoy a boat ride at Lake Palace", "Explore Bagore Ki Haveli", "Visit Jag Mandir"
+            ],
+            "Shimla": [
+                "Walk on The Ridge", "Explore Mall Road", "Try Himachali Dham",
+                "Visit Jakhoo Temple", "Ride the Kalka-Shimla Toy Train", "Explore Kufri",
+                "Visit Christ Church", "Check out Viceregal Lodge", "Enjoy snowfall at Mashobra",
+                "Trek to Chadwick Falls"
+            ]
         };
 
-        const citySuggestions = {
-            "Delhi": ["Visit India Gate", "Eat Chole Bhature", "Explore Red Fort", "Shop at Chandni Chowk", "Visit Lotus Temple"],
-            "Mumbai": ["Visit Marine Drive", "Try Vada Pav", "Explore Gateway of India", "Visit Film City", "Relax at Juhu Beach"],
-            "Bangalore": ["Visit Lalbagh Garden", "Eat Masala Dosa", "Explore Cubbon Park", "Visit Bangalore Palace", "Go to Bannerghatta National Park"],
-            "Chennai": ["Visit Marina Beach", "Try Idli Sambar", "Explore Kapaleeshwarar Temple", "Visit Fort St. George", "Shop at T Nagar"],
-            "Kolkata": ["Visit Victoria Memorial", "Eat Rosogolla", "Explore Howrah Bridge", "See Science City", "Visit Dakshineswar Temple"],
-            "Hyderabad": ["Visit Charminar", "Eat Hyderabadi Biryani", "Explore Golconda Fort", "Visit Ramoji Film City", "See Hussain Sagar Lake"],
-            "Pune": ["Visit Shaniwar Wada", "Try Misal Pav", "Explore Sinhagad Fort", "Visit Aga Khan Palace", "See Osho Ashram"],
-            "Jaipur": ["Visit Hawa Mahal", "Eat Dal Baati Churma", "Explore Amer Fort", "See Nahargarh Fort", "Shop at Johari Bazaar"],
-            "Ahmedabad": ["Visit Sabarmati Ashram", "Try Dhokla", "Explore Kankaria Lake", "See Adalaj Stepwell", "Visit Akshardham Temple"],
-            "Goa": ["Visit Baga Beach", "Try Goan Fish Curry", "Explore Fort Aguada", "Party at Tito’s Club", "Relax at Palolem Beach"],
-            "Varanasi": ["Visit Kashi Vishwanath Temple", "Try Banarasi Paan", "Explore Ghats of Varanasi", "See Sarnath", "Attend Ganga Aarti"],
-            "Amritsar": ["Visit Golden Temple", "Try Amritsari Kulcha", "Explore Jallianwala Bagh", "See Wagah Border Ceremony", "Visit Durgiana Temple"],
-            "Udaipur": ["Visit City Palace", "Try Rajasthani Thali", "Explore Lake Pichola", "See Jag Mandir", "Visit Sajjangarh Palace"],
-            "Shimla": ["Visit Mall Road", "Try Chana Madra", "Explore Kufri", "See Jakhoo Temple", "Ride the Toy Train"],
-        };
+        const addedTasks = new Set();
 
         function showSuggestions() {
             const city = document.getElementById("city").value;
-            document.body.style.backgroundImage = cityBackgrounds[city] || "";
+            document.getElementById("tasks").innerHTML = ""; // Clears only the to-do list
             const cityInfo = document.getElementById("city-info");
-            cityInfo.innerHTML = citySuggestions[city]?.map(task => `<div class='task'>${task} <button onclick="addTask('${task}')">Add</button></div>`).join('') || "";
+            cityInfo.innerHTML = `<h3>Things to do in ${city}:</h3>`;
+            if (cityTasks[city]) {
+                cityTasks[city].forEach(task => {
+                    cityInfo.innerHTML += `<div><span>${task}</span> <button onclick="addTask('${task}', this)">Add</button></div>`;
+                });
+            }
         }
 
-        function addTask(task) {
-            document.getElementById("tasks").innerHTML += `<li>${task} <button onclick="this.parentElement.remove()">Done</button></li>`;
+        function addTask(task, button) {
+            if (!addedTasks.has(task)) {
+                addedTasks.add(task);
+                document.getElementById("tasks").innerHTML += `<li>${task} <button onclick="removeTask('${task}', this)">Done</button></li>`;
+                button.disabled = true;
+                button.classList.add("disabled");
+            }
+        }
+
+        function removeTask(task, button) {
+            addedTasks.delete(task);
+            button.parentElement.remove();
         }
     </script>
 </body>
+
 </html>
